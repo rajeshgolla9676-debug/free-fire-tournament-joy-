@@ -1,5 +1,25 @@
 import type {VercelRequest,VercelResponse} from '@vercel/node';
-import {timingSafeEqual} from 'node:crypto';import {z} from 'zod';import {setSession} from '../_lib/auth';import {json,method,sameOrigin} from '../_lib/db';
+import {timingSafeEqual} from 'node:crypto';
+import {z} from 'zod';
+import {setSession} from '../_lib/auth';
+import {json,method,sameOrigin} from '../_lib/db';
+
 const schema=z.object({username:z.string().trim().min(1).max(80),password:z.string().min(1).max(200)});
 function safeEqual(a:string,b:string){const aa=Buffer.from(a),bb=Buffer.from(b);return aa.length===bb.length&&timingSafeEqual(aa,bb);}
-export default async function handler(req:VercelRequest,res:VercelResponse){if(!method(req,res,['POST']))return;if(!sameOrigin(req))return json(res,403,{error:'Request origin not allowed.'});const p=schema.safeParse(req.body);if(!p.success)return json(res,400,{error:'Enter username and password.'});const expected=process.env.ADMIN_PASSWORD;if(p.data.username.toLowerCase()!=='admin'||!expected||!safeEqual(p.data.password,expected))return json(res,401,{error:'Invalid admin login.'});await setSession(res);return json(res,200,{success:true});}
+
+export default async function handler(req:VercelRequest,res:VercelResponse){
+  if(!method(req,res,['POST'])) return;
+  if(!sameOrigin(req)) return json(res,403,{error:'Request origin not allowed.'});
+  try{
+    const p=schema.safeParse(req.body);
+    if(!p.success) return json(res,400,{error:'Enter username and password.'});
+    const expected=process.env.ADMIN_PASSWORD;
+    if(p.data.username.toLowerCase()!=='admin'||!expected||!safeEqual(p.data.password,expected))
+      return json(res,401,{error:'Invalid admin login.'});
+    await setSession(res);
+    return json(res,200,{success:true});
+  }catch(error){
+    console.error('Admin login error:',error);
+    return json(res,500,{error:'Admin login server error. Please check Vercel environment variables.'});
+  }
+}

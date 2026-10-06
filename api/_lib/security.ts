@@ -1,0 +1,1 @@
+import {randomBytes} from 'node:crypto';export function randomTeamCode(){const alphabet='23456789ABCDEFGHJKMNPQRSTUVWXYZ';return 'FF2026-'+Array.from(randomBytes(5),b=>alphabet[b%alphabet.length]).join('');}

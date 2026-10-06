@@ -1,0 +1,1 @@
+import type {VercelRequest,VercelResponse} from '@vercel/node';import {clearSession} from '../_lib/auth';import {json,method} from '../_lib/db';export default async function handler(req:VercelRequest,res:VercelResponse){if(!method(req,res,['POST']))return;clearSession(res);return json(res,200,{success:true});}

@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 
-type Player={name:string;uid:string;ign:string;phone:string};
+type Player={name:string;uid:string;ign:string;phone:string;slot?:number};
 type Registration={id:string;public_team_code:string;name:string;captain_name:string;captain_phone:string;email:string|null;college:string|null;city:string|null;status:string;created_at:string;players:Player[]};
 const initialPlayers=():Player[]=>[1,2,3,4].map(()=>({name:'',uid:'',ign:'',phone:''}));
 
